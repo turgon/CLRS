@@ -21,24 +21,8 @@ def insertion_sort(A):
     return A
 
 if __name__ == '__main__':
-    lines = []
-
-    from optparse import OptionParser
-    parser = OptionParser()
-    (options, args) = parser.parse_args()
-
-    for f in args:
-        try:
-            fh = open(f, "r")
-        except:
-            parser.error("Unable to load %s" % f)
-
-        try:
-            fl = [int(x) for x in fh.readlines()]
-        except:
-            parser.error("Unable to read %s" % f)
-
-        lines.extend(fl)
+    from filetolist import argstolist
+    lines = argstolist(int)
 
     print lines
     print insertion_sort(lines)
