@@ -1,9 +1,3 @@
-"""
-Note: this is a lot easier when array indices start with 1 rather than 0.
-Fortunately I need a place to store heap_size, so I'll do so in A[0].
-That means A[1] is the max value in the heap.
-"""
-
 def parent(i):
     """
     Get the parent index of i
@@ -42,84 +36,94 @@ def right(i):
     """
     return (i << 1) + 1
 
-def heap_size(A):
+class Heap:
     """
-    Since as an implementation detail I have agreed to store the true heap
-    size in A[0], I simply return that.
-    >>> heap_size([0])
-    0
-    >>> heap_size([5])
-    5
+    Note: this is a lot easier when array indices start with 1 rather than 0.
+    Fortunately I need a place to store heap_size, so I'll do so in A[0].
+    That means A[1] is the max value in the heap.
     """
-    return A[0]
+    
+    def __init__(self, initial=[]):
+        self.heap_size = 0
+        self.A = [0]
+        self.A[1:] = initial
+        self.A = self.build_max_heap()
 
-def max_heapify(A, i):
-    """
-    I make the assumption that the ith node's left and right children are
-    both max heaps.  Then, this function enforces the heap property on
-    A at the ith node.
-    >>> max_heapify([1, 1], 1)
-    [1, 1]
-    >>> max_heapify([3, 1, 2, 1], 1)
-    [3, 2, 1, 1]
-    >>> max_heapify([3, 1, 1, 2], 1)
-    [3, 2, 1, 1]
-    >>> max_heapify([5, 1, 2, 1, 2, 1], 1)
-    [5, 2, 2, 1, 1, 1]
-    """
-    l = left(i)
-    r = right(i)
-    s = heap_size(A)
+    def max_heapify(self, i):
+        """
+        I make the assumption that the ith node's left and right children are
+        both max heaps.  Then, this function enforces the heap property on
+        A at the ith node.
+        >>> a = Heap([1])
+        >>> a.max_heapify(1)
+        [1]
+        >>> a = Heap([1, 2, 1])
+        >>> a.max_heapify(1)
+        [2, 1, 1]
+        >>> a = Heap([1, 1, 2])
+        >>> a.max_heapify(1)
+        [2, 1, 1]
+        >>> a = Heap([1, 2, 1, 2, 1])
+        >>> a.max_heapify(1)
+        [2, 2, 1, 1, 1]
+        """
+        l = left(i)
+        r = right(i)
+        s = self.heap_size
 
-    if l <= s and A[l] > A[i]:
-        largest = l
-    else:
-        largest = i
+        if l <= s and self.A[l] > self.A[i]:
+            largest = l
+        else:
+            largest = i
 
-    if r <= s and A[r] > A[largest]:
-        largest = r
+        if r <= s and self.A[r] > self.A[largest]:
+            largest = r
 
-    if largest != i:
-        tmp = A[i]
-        A[i] = A[largest]
-        A[largest] = tmp
-        max_heapify(A, largest)
+        if largest != i:
+            tmp = self.A[i]
+            self.A[i] = self.A[largest]
+            self.A[largest] = tmp
+            self.max_heapify(largest)
 
-    return A
+        return self.A[1:]
 
-def build_max_heap(A):
-    """
-    I suppose that A is an unordered heap, i.e.: A[0] is a dead placeholder.
-    >>> build_max_heap([0, 1, 2, 3])
-    [3, 3, 2, 1]
-    >>> build_max_heap([0, 1, 2, 3, 4, 5, 6, 7, 8])
-    [8, 8, 5, 7, 4, 1, 6, 3, 2]
-    """
+    def build_max_heap(self):
+        """
+        I suppose that A is an unordered heap, i.e.: A[0] is a dead placeholder.
+        >>> a = Heap([1, 2, 3])
+        >>> print a.A
+        [0, 3, 2, 1]
+        >>> a = Heap([1, 2, 3, 4, 5, 6, 7, 8])
+        >>> print a.A
+        [0, 8, 5, 7, 4, 1, 6, 3, 2]
+        """
 
-    A[0] = len(A) - 1
+        self.heap_size = len(self.A) - 1
 
-    for i in xrange(A[0]/2, 0, -1):
-        max_heapify(A, i)
+        for i in xrange(self.heap_size/2, 0, -1):
+            self.max_heapify(i)
 
-    return A
+        return self.A
 
-def heapsort(A):
-    """
-    >>> heapsort([0, 1, 2, 3, 4, 5])
-    [1, 1, 2, 3, 4, 5]
-    >>> heapsort([0, 2, 1, 4, 3, 6, 5, 8, 7, 9])
-    [1, 1, 2, 3, 4, 5, 6, 7, 8, 9]
-    """
+    def heapsort(self):
+        """
+        >>> a = Heap([1, 2, 3, 4, 5])
+        >>> a.heapsort()
+        [1, 2, 3, 4, 5]
+        >>> a = Heap([2, 1, 4, 3, 6, 5, 8, 7, 9])
+        >>> a.heapsort()
+        [1, 2, 3, 4, 5, 6, 7, 8, 9]
+        """
 
-    build_max_heap(A)
-    for i in xrange(len(A)-1, 1, -1):
-        tmp = A[1]
-        A[1] = A[i]
-        A[i] = tmp
-        A[0] = A[0] - 1
-        max_heapify(A, 1)
+        self.build_max_heap()
+        for i in xrange(len(self.A)-1, 1, -1):
+            tmp = self.A[1]
+            self.A[1] = self.A[i]
+            self.A[i] = tmp
+            self.heap_size = self.heap_size - 1
+            self.max_heapify(1)
 
-    return A
+        return self.A[1:]
 
 if __name__ == '__main__':
     from filetolist import argstolist
@@ -128,4 +132,5 @@ if __name__ == '__main__':
     lines.insert(0, 0) 
 
     print lines
-    print heapsort(lines)
+    a = Heap(lines)
+    print a.heapsort()
