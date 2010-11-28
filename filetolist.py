@@ -16,7 +16,8 @@ def filetolist(path, mapper=None):
         else:
             fl = [x for x in fh.readlines()]
     except:
-        parser.error("Unable to read %s" % f)
+        #parser.error("Unable to read %s" % f)
+        raise
 
     return fl
 
